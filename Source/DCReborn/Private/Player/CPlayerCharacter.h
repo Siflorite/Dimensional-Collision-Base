@@ -13,5 +13,14 @@ UCLASS()
 class ACPlayerCharacter : public ACCharacter
 {
 	GENERATED_BODY()
+
+public:
+	ACPlayerCharacter();
 	
+private:
+	UPROPERTY(VisibleDefaultsOnly, Category = "View")
+	class USpringArmComponent* CameraBoom;
+	
+	UPROPERTY(VisibleDefaultsOnly, Category = "View")
+	class UCameraComponent* ViewCam;
 };
