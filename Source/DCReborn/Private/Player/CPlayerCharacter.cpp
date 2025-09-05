@@ -31,9 +31,13 @@ void ACPlayerCharacter::PawnClientRestart()
 
 	if (const APlayerController* OwningPlayerController = GetController<APlayerController>())
 	{
+		if (!OwningPlayerController->GetLocalPlayer())
+		{
+			return;
+		}
+		
 		if (const auto InputSubsystem = OwningPlayerController->GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 		{
-			InputSubsystem->RemoveMappingContext(GameplayInputMappingContext);
 			InputSubsystem->AddMappingContext(GameplayInputMappingContext, 0);
 		}
 	}
@@ -53,7 +57,7 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ACPlayerCharacter::HandleLookInput(const FInputActionValue& InputActionValue)
 {
-	const auto InputVal = InputActionValue.Get<FVector2D>();
+	const FVector2D InputVal = InputActionValue.Get<FVector2D>();
 
 	AddControllerPitchInput(-InputVal.Y);
 	AddControllerYawInput(InputVal.X);
@@ -61,7 +65,7 @@ void ACPlayerCharacter::HandleLookInput(const FInputActionValue& InputActionValu
 
 void ACPlayerCharacter::HandleMoveInput(const FInputActionValue& InputActionValue)
 {
-	auto InputVal = InputActionValue.Get<FVector2D>();
+	FVector2D InputVal = InputActionValue.Get<FVector2D>();
 	InputVal.Normalize();
 
 	AddMovementInput(GetMoveForwardDirection() * InputVal.Y + GetLookRightDirection() * InputVal.X);
@@ -79,5 +83,6 @@ FVector ACPlayerCharacter::GetLookForwardDirection() const
 
 FVector ACPlayerCharacter::GetMoveForwardDirection() const
 {
-	return FVector::CrossProduct(GetLookRightDirection(), FVector::UpVector);
+	// 对右向量和上向量 (0,0,1)进行叉乘，得到水平方向的前向量，且一定与右向量正交
+	return FVector::CrossProduct(GetLookRightDirection(), FVector::UpVector).GetSafeNormal();
 }
