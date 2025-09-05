@@ -76,3 +76,7 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Other Bullshit..
+UpgradeLog.htm
+DCReborn.sln.DotSettings.user
