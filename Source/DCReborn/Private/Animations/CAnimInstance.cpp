@@ -31,6 +31,11 @@ void UCAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 		YawSpeed = DeltaRotation.Yaw / DeltaSeconds;
 		SmoothedYawSpeed = UKismetMathLibrary::FInterpTo(SmoothedYawSpeed, YawSpeed, DeltaSeconds, YawSpeedSmoothLerpSpeed);
 	}
+
+	if (OwnerMovementComponent)
+	{
+		bIsJumping = OwnerMovementComponent->IsFalling();
+	}
 }
 
 void UCAnimInstance::NativeThreadSafeUpdateAnimation(const float DeltaSeconds)

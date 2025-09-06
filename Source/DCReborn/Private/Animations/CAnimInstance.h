@@ -40,6 +40,9 @@ public:
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetSmoothedYawSpeed() const { return SmoothedYawSpeed; }
 
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	FORCEINLINE bool IsJumping() const { return bIsJumping; }
+
 private:
 	UPROPERTY()
 	class ACharacter* OwnerCharacter;
@@ -58,4 +61,7 @@ private:
 	// 旋转速度平滑插值斜率
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	float YawSpeedSmoothLerpSpeed = 1.f;
+
+	// 是否正在跳跃
+	bool bIsJumping;
 };
