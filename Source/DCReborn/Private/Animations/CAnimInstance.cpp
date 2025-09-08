@@ -30,6 +30,10 @@ void UCAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 		
 		YawSpeed = DeltaRotation.Yaw / DeltaSeconds;
 		SmoothedYawSpeed = UKismetMathLibrary::FInterpTo(SmoothedYawSpeed, YawSpeed, DeltaSeconds, YawSpeedSmoothLerpSpeed);
+
+		// Strange thing is that this function only makes pitch duplicated while yaw not in multiplayer sessions
+		const FRotator ControllerRotation = OwnerCharacter->GetBaseAimRotation();
+		LookOffsetRotation = UKismetMathLibrary::NormalizedDeltaRotator(ControllerRotation, BodyCurRotation);
 	}
 
 	if (OwnerMovementComponent)

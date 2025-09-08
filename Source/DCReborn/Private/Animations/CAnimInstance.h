@@ -34,14 +34,20 @@ public:
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE bool IsMoving() const { return Speed != 0.0f; }
 
-	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
-	FORCEINLINE float GetYawSpeed() const { return YawSpeed; }
+	// UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	// FORCEINLINE float GetYawSpeed() const { return YawSpeed; }
 
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetSmoothedYawSpeed() const { return SmoothedYawSpeed; }
 
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE bool IsJumping() const { return bIsJumping; }
+
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetLookOffsetYaw() const { return LookOffsetRotation.Yaw; }
+
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetLookOffsetPitch() const { return LookOffsetRotation.Pitch; }
 
 private:
 	UPROPERTY()
@@ -61,6 +67,9 @@ private:
 	// 旋转速度平滑插值斜率
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	float YawSpeedSmoothLerpSpeed = 1.f;
+
+	// 角色头部转动偏差（相机方向与人物面朝方向的差）
+	FRotator LookOffsetRotation;
 
 	// 是否正在跳跃
 	bool bIsJumping;
