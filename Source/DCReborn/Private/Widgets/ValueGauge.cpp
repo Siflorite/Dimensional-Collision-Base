@@ -2,8 +2,12 @@
 
 
 #include "Widgets/ValueGauge.h"
+
+// #include "AttributeSet.h"
+#include "AbilitySystemComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "GameplayEffectTypes.h"
 
 void UValueGauge::NativePreConstruct()
 {
@@ -11,6 +15,26 @@ void UValueGauge::NativePreConstruct()
 	ProgressBar->SetFillColorAndOpacity(BarColor);
 }
 
+void UValueGauge::SetAndBoundToGameplayAttribute(UAbilitySystemComponent* AbilitySystemComponent,
+	const FGameplayAttribute& Attribute, const FGameplayAttribute& MaxAttribute)
+{
+	if (AbilitySystemComponent)
+	{
+		bool bFound, bFoundMax;
+		CachedValue = AbilitySystemComponent->GetGameplayAttributeValue(Attribute, bFound);
+		CachedMaxValue = AbilitySystemComponent->GetGameplayAttributeValue(MaxAttribute, bFoundMax);
+		if (!bFound || !bFoundMax)
+		{
+			return;
+		}
+		SetValue(CachedValue, CachedMaxValue);
+		// Subscribe to changes of the attributes
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Attribute).AddUObject(this, &UValueGauge::ValueChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MaxAttribute).AddUObject(this, &UValueGauge::MaxValueChanged);
+	}
+}
+
+// 更新进度条和文本块UI
 void UValueGauge::SetValue(const float NewValue, const float NewMaxValue) const
 {
 	if (NewMaxValue == 0)
@@ -32,4 +56,16 @@ void UValueGauge::SetValue(const float NewValue, const float NewMaxValue) const
 			FText::AsNumber(NewMaxValue, &FormatOps)
 		)
 	);
+}
+
+void UValueGauge::ValueChanged(const FOnAttributeChangeData& ChangedData)
+{
+	CachedValue = ChangedData.NewValue;
+	SetValue(CachedValue, CachedMaxValue);
+}
+
+void UValueGauge::MaxValueChanged(const FOnAttributeChangeData& ChangedData)
+{
+	CachedMaxValue = ChangedData.NewValue;
+	SetValue(CachedValue, CachedMaxValue);
 }

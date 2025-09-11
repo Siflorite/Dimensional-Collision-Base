@@ -16,7 +16,8 @@ class UValueGauge : public UUserWidget
 
 public:
 	virtual void NativePreConstruct() override;
-	
+
+	void SetAndBoundToGameplayAttribute(class UAbilitySystemComponent* AbilitySystemComponent, const struct FGameplayAttribute& Attribute, const FGameplayAttribute& MaxAttribute);
 	void SetValue(const float NewValue, const float NewMaxValue) const;
 
 private:
@@ -28,4 +29,10 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
 	class UTextBlock* ValueText;
+
+	float CachedValue;
+	float CachedMaxValue;
+
+	void ValueChanged(const struct FOnAttributeChangeData& ChangedData);
+	void MaxValueChanged(const struct FOnAttributeChangeData& ChangedData);
 };
