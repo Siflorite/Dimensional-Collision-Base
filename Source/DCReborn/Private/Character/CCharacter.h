@@ -18,6 +18,8 @@ public:
 	// 服务端与客户端初始化
 	void ServerSideInit();
 	void ClientSideInit();
+	// 只会在服务端被调用
+	virtual void PossessedBy(AController* NewController) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -42,4 +44,22 @@ private:
 	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay Ability")
 	class UCAttributeSet* CAttributeSet;
+
+// ---------------------------------  UI Components  --------------------------------------
+	
+private:
+	UPROPERTY(VisibleDefaultsOnly, Category = "UI")
+	class UWidgetComponent* OverheadWidgetComponent;
+
+	void ConfigureOverheadWidgetStatus();
+
+	// 避免平方根
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	float OverheadWidgetVisibilityRangeSquared = 9000000.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	float OverheadWidgetTimerInterval = 0.1f;
+	
+	FTimerHandle OverheadWidgetTimerHandle;
+	void UpdateOverheadWidget();
 };
