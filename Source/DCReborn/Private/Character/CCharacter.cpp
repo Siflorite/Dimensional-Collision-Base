@@ -32,6 +32,7 @@ void ACCharacter::ServerSideInit()
 	CAbilitySystemComponent->InitAbilityActorInfo(this, this);
 	// 服务端初始化
 	CAbilitySystemComponent->ApplyInitialEffects();
+	CAbilitySystemComponent->GiveInitialAbilities();
 }
 
 void ACCharacter::ClientSideInit()
@@ -59,7 +60,7 @@ void ACCharacter::BeginPlay()
 }
 
 // Called every frame
-void ACCharacter::Tick(float DeltaTime)
+void ACCharacter::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -98,7 +99,7 @@ void ACCharacter::ConfigureOverheadWidgetStatus()
 	}
 }
 
-void ACCharacter::UpdateOverheadWidget()
+void ACCharacter::UpdateOverheadWidget() const
 {
 	if (const APawn* LocalPlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
 	{
@@ -108,7 +109,6 @@ void ACCharacter::UpdateOverheadWidget()
 		// 头顶血条缩放
 		if (DistSquared <= OverheadWidgetVisibilityRangeSquared)
 		{
-			constexpr float MinDistSquared = 250000.f;
 			const float DistClamped = FMath::Clamp(DistSquared, MinDistSquared, OverheadWidgetVisibilityRangeSquared);
 			const float SizeRatio = FMath::Pow((MinDistSquared / DistClamped), 0.1f);
 			const UOverheadStatsGauge* OverheadStatsGauge = Cast<UOverheadStatsGauge>(OverheadWidgetComponent->GetUserWidgetObject());

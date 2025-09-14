@@ -55,11 +55,14 @@ private:
 
 	// 避免平方根
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	float OverheadWidgetVisibilityRangeSquared = 9000000.f;
+	float OverheadWidgetVisibilityRangeSquared = 9000000.f; // 30 meters
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	float MinDistSquared = 250000.f; // 5 meters
 	
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	float OverheadWidgetTimerInterval = 0.1f;
+	float OverheadWidgetTimerInterval = 0.01f; // 10 ms
 	
 	FTimerHandle OverheadWidgetTimerHandle;
-	void UpdateOverheadWidget();
+	void UpdateOverheadWidget() const;
 };

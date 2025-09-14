@@ -43,7 +43,7 @@ void UValueGauge::SetValue(const float NewValue, const float NewMaxValue) const
 		UE_LOG(LogTemp, Warning, TEXT("Value Gauge: %s, NewMaxValue cannot be 0."), *GetName());
 		return;
 	}
-
+	
 	const float NewPercentage = NewValue / NewMaxValue;
 	ProgressBar->SetPercent(NewPercentage);
 
