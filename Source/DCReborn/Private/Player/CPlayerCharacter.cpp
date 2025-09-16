@@ -2,6 +2,7 @@
 
 
 #include "Player/CPlayerCharacter.h"
+#include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -52,6 +53,11 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::HandleLookInput);
 		EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::HandleMoveInput);
+
+		for (const TPair<ECAbilityInputID, UInputAction*>& InputActionPair: GameplayAbilityInputActions)
+		{
+			EnhancedInputComponent->BindAction(InputActionPair.Value, ETriggerEvent::Triggered, this, &ACPlayerCharacter::HandleAbilityInput, InputActionPair.Key);
+		}
 	}
 }
 
@@ -69,6 +75,19 @@ void ACPlayerCharacter::HandleMoveInput(const FInputActionValue& InputActionValu
 	InputVal.Normalize();
 
 	AddMovementInput(GetMoveForwardDirection() * InputVal.Y + GetLookRightDirection() * InputVal.X);
+}
+
+// Despite IDE suggests making it const, but delegates required in `BindAction` cannot be const functions
+void ACPlayerCharacter::HandleAbilityInput(const FInputActionValue& InputActionValue, const ECAbilityInputID InputID)
+{
+	if (InputActionValue.Get<bool>())
+	{
+		GetAbilitySystemComponent()->AbilityLocalInputPressed(static_cast<int32>(InputID));
+	}
+	else
+	{
+		GetAbilitySystemComponent()->AbilityLocalInputReleased(static_cast<int32>(InputID));
+	}
 }
 
 FVector ACPlayerCharacter::GetLookRightDirection() const
