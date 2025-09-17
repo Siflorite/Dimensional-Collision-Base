@@ -5,7 +5,7 @@
 
 void UCAbilitySystemComponent::ApplyInitialEffects()
 {
-	// Ensure the initialization effects only commence on servers!
+	// Ensure the initialization of effects only commence on servers!
 	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
 	
 	for (const TSubclassOf<UGameplayEffect>& EffectClass : InitialEffects)
@@ -17,7 +17,7 @@ void UCAbilitySystemComponent::ApplyInitialEffects()
 
 void UCAbilitySystemComponent::GiveInitialAbilities()
 {
-	// Ensure the initialization effects only commence on servers!
+	// Ensure the initialization of abilities only commence on servers!
 	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
 
 	for (const TPair<ECAbilityInputID, TSubclassOf<UGameplayAbility>>& AbilityPair: Abilities)

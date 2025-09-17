@@ -78,6 +78,7 @@ void ACPlayerCharacter::HandleMoveInput(const FInputActionValue& InputActionValu
 }
 
 // Despite IDE suggests making it const, but delegates required in `BindAction` cannot be const functions
+// ReSharper disable once CppMemberFunctionMayBeConst
 void ACPlayerCharacter::HandleAbilityInput(const FInputActionValue& InputActionValue, const ECAbilityInputID InputID)
 {
 	if (InputActionValue.Get<bool>())

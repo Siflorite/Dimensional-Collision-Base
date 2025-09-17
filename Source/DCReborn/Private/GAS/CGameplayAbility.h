@@ -13,5 +13,10 @@ UCLASS()
 class UCGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
-	
+
+public:
+		UCGameplayAbility();
+
+protected:
+	class UAnimInstance* GetOwnerAnimInstance() const;
 };

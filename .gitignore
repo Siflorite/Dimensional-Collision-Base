@@ -80,3 +80,8 @@ DerivedDataCache/*
 # Other Bullshit..
 UpgradeLog.htm
 DCReborn.sln.DotSettings.user
+DCReborn.uproject.DotSettings.user
+
+# Release Folders
+Release/
+ReleaseDevelopment/

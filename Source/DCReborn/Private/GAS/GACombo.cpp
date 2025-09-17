@@ -3,6 +3,8 @@
 
 #include "GAS/GACombo.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 #include "GAS/CAbilitySystemStatics.h"
 
 UGACombo::UGACombo()
@@ -41,5 +43,56 @@ void UGACombo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		PlayComboMontageTask->OnCompleted.AddDynamic(this, &UGACombo::K2_EndAbility);
 		PlayComboMontageTask->OnInterrupted.AddDynamic(this, &UGACombo::K2_EndAbility);
 		PlayComboMontageTask->ReadyForActivation();
+
+		UAbilityTask_WaitGameplayEvent* WaitComboChangeEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, GetComboChangedEventTag(), nullptr, false, false);
+		WaitComboChangeEventTask->EventReceived.AddDynamic(this, &UGACombo::HandleComboChangedEvent);
+		WaitComboChangeEventTask->ReadyForActivation();
+		
+		SetupInputPress();
+	}
+}
+
+FGameplayTag UGACombo::GetComboChangedEventTag()
+{
+	return FGameplayTag::RequestGameplayTag("Ability.Combo.Change");
+}
+
+FGameplayTag UGACombo::GetComboChangedEventEndTag()
+{
+	return FGameplayTag::RequestGameplayTag("Ability.Combo.Change.End");
+}
+
+void UGACombo::SetupInputPress()
+{
+	// Hard-coded to be triggered only once
+	UAbilityTask_WaitInputPress* WaitInputPressTask = UAbilityTask_WaitInputPress::WaitInputPress(this);
+	WaitInputPressTask->OnPress.AddDynamic(this, &UGACombo::HandleInputPress);
+	WaitInputPressTask->ReadyForActivation();
+}
+
+// Delegate functions in `EventReceived.AddDynamic` require a whole `FGameplayEventData` struct passing in, while reference is not allowed.
+// ReSharper disable once CppPassValueParameterByConstReference
+void UGACombo::HandleComboChangedEvent(FGameplayEventData Data)
+{
+	if (const FGameplayTag& EventTag = Data.EventTag; EventTag == GetComboChangedEventEndTag())
+	{
+		NextComboName = NAME_None;
+		// UE_LOG(LogTemp, Warning, TEXT("Next Combo is cleared."));
+	}
+	else
+	{
+		NextComboName = EventTag.GetTagLeafName();
+		// UE_LOG(LogTemp, Warning, TEXT("Next Combo Name: %s"), *NextComboName.ToString());
+	}
+}
+
+void UGACombo::HandleInputPress(float TimeWaited)
+{
+	SetupInputPress();
+	
+	if (NextComboName == NAME_None) return;
+	if (UAnimInstance* OwnerAnimInstance = GetOwnerAnimInstance())
+	{
+		OwnerAnimInstance->Montage_SetNextSection(OwnerAnimInstance->Montage_GetCurrentSection(ComboMontage), NextComboName, ComboMontage);
 	}
 }

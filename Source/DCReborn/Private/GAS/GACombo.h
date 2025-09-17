@@ -21,4 +21,15 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* ComboMontage;
+
+	void SetupInputPress();
+	
+	UFUNCTION()
+	void HandleComboChangedEvent(FGameplayEventData Data);
+	UFUNCTION()
+	void HandleInputPress(float TimeWaited);
+
+	static FGameplayTag GetComboChangedEventTag();
+	static FGameplayTag GetComboChangedEventEndTag();
+	FName NextComboName;
 };
