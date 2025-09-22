@@ -8,7 +8,8 @@ void UAnimNotifySendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAni
                                           const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
-
+	
+	if (!MeshComp) return;
 	if (AActor* AbilityOwner = MeshComp->GetOwner())
 	{
 		// 检查目标AActor是否持有能力系统组件
