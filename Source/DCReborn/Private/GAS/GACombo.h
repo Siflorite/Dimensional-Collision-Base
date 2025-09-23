@@ -28,8 +28,11 @@ private:
 	void HandleComboChangedEvent(FGameplayEventData Data);
 	UFUNCTION()
 	void HandleInputPress(float TimeWaited);
+	UFUNCTION()
+	void HandleDamageEvent(FGameplayEventData Data);
 
 	static FGameplayTag GetComboChangedEventTag();
 	static FGameplayTag GetComboChangedEventEndTag();
 	FName NextComboName;
+	static FGameplayTag GetComboTargetEventTag();
 };

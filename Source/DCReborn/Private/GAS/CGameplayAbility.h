@@ -15,8 +15,10 @@ class UCGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
-		UCGameplayAbility();
+	UCGameplayAbility();
 
 protected:
 	class UAnimInstance* GetOwnerAnimInstance() const;
+
+	TArray<FHitResult> GetHitResultsFromSweepLocationTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle, const float SweepSphereRadius = 30.f, const bool bDrawDebugTrajectory = false, const bool bIgnoreSelf = true) const;
 };

@@ -35,6 +35,7 @@ void UGACombo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		return;
 	}
 
+	// 动画事件，同时在服务器和玩家客户端实现，避免延迟
 	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
 		UAbilityTask_PlayMontageAndWait* PlayComboMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, ComboMontage);
@@ -50,6 +51,14 @@ void UGACombo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		
 		SetupInputPress();
 	}
+
+	// 技能作用事件，只在服务器端实现
+	if (K2_HasAuthority())
+	{
+		UAbilityTask_WaitGameplayEvent* WaitTargetingEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, GetComboTargetEventTag());
+		WaitTargetingEventTask->EventReceived.AddDynamic(this, &UGACombo::HandleDamageEvent);
+		WaitTargetingEventTask->ReadyForActivation();
+	}
 }
 
 FGameplayTag UGACombo::GetComboChangedEventTag()
@@ -60,6 +69,11 @@ FGameplayTag UGACombo::GetComboChangedEventTag()
 FGameplayTag UGACombo::GetComboChangedEventEndTag()
 {
 	return FGameplayTag::RequestGameplayTag("Ability.Combo.Change.End");
+}
+
+FGameplayTag UGACombo::GetComboTargetEventTag()
+{
+	return FGameplayTag::RequestGameplayTag("Ability.Combo.Damage");
 }
 
 void UGACombo::SetupInputPress()
@@ -95,4 +109,10 @@ void UGACombo::HandleInputPress(float TimeWaited)
 	{
 		OwnerAnimInstance->Montage_SetNextSection(OwnerAnimInstance->Montage_GetCurrentSection(ComboMontage), NextComboName, ComboMontage);
 	}
+}
+
+// ReSharper disable once CppPassValueParameterByConstReference
+void UGACombo::HandleDamageEvent(FGameplayEventData Data)
+{
+	TArray<FHitResult> HitResults = GetHitResultsFromSweepLocationTargetData(Data.TargetData, 30.f, true, true);
 }
