@@ -5,6 +5,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GAS/CAbilitySystemStatics.h"
 
 UGACombo::UGACombo()
@@ -76,6 +77,20 @@ FGameplayTag UGACombo::GetComboTargetEventTag()
 	return FGameplayTag::RequestGameplayTag("Ability.Combo.Damage");
 }
 
+TSubclassOf<UGameplayEffect> UGACombo::GetCurrenComboDamageEffect() const
+{
+	if (const UAnimInstance* OwnerAnimInstance = GetOwnerAnimInstance())
+	{
+		const FName CurrentSectionName = OwnerAnimInstance->Montage_GetCurrentSection(ComboMontage);
+		if (const TSubclassOf<UGameplayEffect>* CurrentEffectPtr = DamageEffectMap.Find(CurrentSectionName))
+		{
+			return *CurrentEffectPtr;
+		}
+	}
+	
+	return DefaultDamageEffect;
+}
+
 void UGACombo::SetupInputPress()
 {
 	// Hard-coded to be triggered only once
@@ -111,8 +126,16 @@ void UGACombo::HandleInputPress(float TimeWaited)
 	}
 }
 
+
+// ReSharper disable once CppMemberFunctionMayBeConst
 // ReSharper disable once CppPassValueParameterByConstReference
 void UGACombo::HandleDamageEvent(FGameplayEventData Data)
 {
-	TArray<FHitResult> HitResults = GetHitResultsFromSweepLocationTargetData(Data.TargetData, 30.f, true, true);
+	for (const TArray<FHitResult> HitResults = GetHitResultsFromSweepLocationTargetData(Data.TargetData, 30.f, true, true); const FHitResult& HitResult : HitResults)
+	{
+		const TSubclassOf<UGameplayEffect> CurrentEffectClass = GetCurrenComboDamageEffect();
+		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(CurrentEffectClass, GetAbilityLevel(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()));
+
+		ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), MoveTemp(EffectSpecHandle), UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor()));
+	}
 }

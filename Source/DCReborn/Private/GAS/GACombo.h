@@ -22,6 +22,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* ComboMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
+	TSubclassOf<UGameplayEffect> DefaultDamageEffect;
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
+	TMap<FName, TSubclassOf<UGameplayEffect>> DamageEffectMap;
+
+	TSubclassOf<UGameplayEffect> GetCurrenComboDamageEffect() const;
+	
 	void SetupInputPress();
 	
 	UFUNCTION()

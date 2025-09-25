@@ -2,9 +2,6 @@
 
 
 #include "Animations/AnimNotifySendTargetGroup.h"
-
-#include <memory>
-
 #include "AbilitySystemBlueprintLibrary.h"
 
 void UAnimNotifySendTargetGroup::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
