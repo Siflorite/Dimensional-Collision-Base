@@ -23,24 +23,27 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UCAttributeSet, MaxMana)
 	// 注册需要复制的变量
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	// 重载数值修改，如将生命值限制在0到最大生命之间
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
-	private:
-		UPROPERTY(ReplicatedUsing = OnRep_Health)
-		FGameplayAttributeData Health;
-		UPROPERTY(ReplicatedUsing = OnRep_MaxHealth)
-		FGameplayAttributeData MaxHealth;
-		UPROPERTY(ReplicatedUsing = OnRep_Mana)
-		FGameplayAttributeData Mana;
-		UPROPERTY(ReplicatedUsing = OnRep_MaxMana)
-		FGameplayAttributeData MaxMana;
+private:
+	UPROPERTY(ReplicatedUsing = OnRep_Health)
+	FGameplayAttributeData Health;
+	UPROPERTY(ReplicatedUsing = OnRep_MaxHealth)
+	FGameplayAttributeData MaxHealth;
+	UPROPERTY(ReplicatedUsing = OnRep_Mana)
+	FGameplayAttributeData Mana;
+	UPROPERTY(ReplicatedUsing = OnRep_MaxMana)
+	FGameplayAttributeData MaxMana;
 
-		// 网络复制回调函数
-		UFUNCTION()
-		void OnRep_Health(const FGameplayAttributeData& OldValue) const;
-		UFUNCTION()
-		void OnRep_MaxHealth(const FGameplayAttributeData& OldValue) const;
-		UFUNCTION()
-		void OnRep_Mana(const FGameplayAttributeData& OldValue) const;
-		UFUNCTION()
-		void OnRep_MaxMana(const FGameplayAttributeData& OldValue) const;
+	// 网络复制回调函数
+	UFUNCTION()
+	void OnRep_Health(const FGameplayAttributeData& OldValue) const;
+	UFUNCTION()
+	void OnRep_MaxHealth(const FGameplayAttributeData& OldValue) const;
+	UFUNCTION()
+	void OnRep_Mana(const FGameplayAttributeData& OldValue) const;
+	UFUNCTION()
+	void OnRep_MaxMana(const FGameplayAttributeData& OldValue) const;
 };
