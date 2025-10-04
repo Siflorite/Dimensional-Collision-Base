@@ -131,7 +131,8 @@ void UGACombo::HandleInputPress(float TimeWaited)
 // ReSharper disable once CppPassValueParameterByConstReference
 void UGACombo::HandleDamageEvent(FGameplayEventData Data)
 {
-	for (const TArray<FHitResult> HitResults = GetHitResultsFromSweepLocationTargetData(Data.TargetData, 30.f, true, true); const FHitResult& HitResult : HitResults)
+	for (const TArray<FHitResult> HitResults = GetHitResultsFromSweepLocationTargetData(Data.TargetData, 30.f, true, true);
+		const FHitResult& HitResult : HitResults)
 	{
 		const TSubclassOf<UGameplayEffect> CurrentEffectClass = GetCurrenComboDamageEffect();
 		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(CurrentEffectClass, GetAbilityLevel(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()));

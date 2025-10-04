@@ -19,13 +19,15 @@ UAnimInstance* UCGameplayAbility::GetOwnerAnimInstance() const
 }
 
 TArray<FHitResult> UCGameplayAbility::GetHitResultsFromSweepLocationTargetData(
-	const FGameplayAbilityTargetDataHandle& TargetDataHandle, const float SweepSphereRadius, const bool bDrawDebugTrajectory,
+	const FGameplayAbilityTargetDataHandle& TargetDataHandle,
+	const float SweepSphereRadius,
+	const bool bDrawDebugTrajectory,
 	const bool bIgnoreSelf) const
 {
 	TArray<FHitResult> OutHitResults;
 	TSet<AActor*> HitActors;
 
-	for (const TSharedPtr<FGameplayAbilityTargetData> TargetData : TargetDataHandle.Data)
+	for (const TSharedPtr<FGameplayAbilityTargetData>& TargetData : TargetDataHandle.Data)
 	{
 		const FVector StartLocation = TargetData->GetOrigin().GetLocation();
 		const FVector EndLocation = TargetData->GetEndPoint();
@@ -39,10 +41,12 @@ TArray<FHitResult> UCGameplayAbility::GetHitResultsFromSweepLocationTargetData(
 			ActorsToIgnore.Add(GetAvatarActorFromActorInfo());
 		}
 
-		const EDrawDebugTrace::Type DrawDebugTraceType = bDrawDebugTrajectory ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
+		const EDrawDebugTrace::Type DrawDebugTraceType = bDrawDebugTrajectory ?
+			EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
 
 		TArray<FHitResult> OutHits;
-		UKismetSystemLibrary::SphereTraceMultiForObjects(this, StartLocation, EndLocation, SweepSphereRadius, HitObjectTypes, false, ActorsToIgnore, DrawDebugTraceType, OutHits, false);
+		UKismetSystemLibrary::SphereTraceMultiForObjects(this, StartLocation, EndLocation, SweepSphereRadius,
+			HitObjectTypes, false, ActorsToIgnore, DrawDebugTraceType, OutHits, false);
 		// OutHitResults.Append(OutHits);
 		// 避免重复计入相同Actor:
 		for (const FHitResult& HitResult : OutHits)
