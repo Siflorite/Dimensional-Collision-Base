@@ -42,6 +42,7 @@ private:
 
 	static FGameplayTag GetComboChangedEventTag();
 	static FGameplayTag GetComboChangedEventEndTag();
-	FName NextComboName;
 	static FGameplayTag GetComboTargetEventTag();
+
+	FName NextComboName;
 };

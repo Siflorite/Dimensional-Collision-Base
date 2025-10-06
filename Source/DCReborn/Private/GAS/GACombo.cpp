@@ -136,11 +136,11 @@ void UGACombo::HandleDamageEvent(FGameplayEventData Data)
 	{
 		const TSubclassOf<UGameplayEffect> CurrentEffectClass = GetCurrenComboDamageEffect();
 		const FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(CurrentEffectClass, GetAbilityLevel(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()));
+
 		// 本来想骂这个`ApplyGameplayEffectSpecToTarget()`参数里面直接传递一堆const结构体，无法避免复制构造（右值移动没用）；
 		// 但是如果参数改成const引用，放到多线程就可能会出现临时变量的悬垂引用，
 		// 考虑到内部只有一个TSharedPtr，复制一遍也就是+1引用计数，忍了。
 		// 当然最好的方法是参数使用右值，不过以UE5开发者的平均水平和目前还基于C++ 17，评价为双向奔赴了。
-		
 		FGameplayEffectContextHandle EffectContextHandle = MakeEffectContext(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo());
 		EffectContextHandle.AddHitResult(HitResult);
 		EffectSpecHandle.Data->SetContext(MoveTemp(EffectContextHandle));
