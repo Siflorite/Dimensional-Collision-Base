@@ -19,6 +19,8 @@ void UAnimNotifySendTargetGroup::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 		if (!UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(AbilityOwner)) return;
 
 		FGameplayEventData LocationData;
+		// I hate this personally but there's no alternative like std::ranges::views::adjacent in C++ 23 or slice::windows in Rust
+		// for TArray to make a window iteration, so just make sure you check everything...
 		for (int32 i = 1; i < TargetSocketNames.Num(); i++)
 		{
 			// Heap Allocation, required by `Add()`
