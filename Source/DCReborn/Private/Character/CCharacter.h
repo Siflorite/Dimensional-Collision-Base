@@ -39,6 +39,10 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 private:
+	void BindGASChangeDelegate();
+
+	void DeadTagUpdated(const struct FGameplayTag Tag, int32 NewCount);
+	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay Ability")
 	class UCAbilitySystemComponent* CAbilitySystemComponent;
 	
@@ -65,4 +69,10 @@ private:
 	
 	FTimerHandle OverheadWidgetTimerHandle;
 	void UpdateOverheadWidget() const;
+
+// --------------------------------  Death and Respawn  -----------------------------------
+
+private:
+	void StartDeathSequence();
+	void Respawn();
 };

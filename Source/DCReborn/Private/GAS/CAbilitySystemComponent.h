@@ -16,10 +16,16 @@ class UCAbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
+	UCAbilitySystemComponent();
+	
 	void ApplyInitialEffects();
 	void GiveInitialAbilities();
 
 private:
+	void HealthUpdated(const FOnAttributeChangeData& Data);
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
+	TSubclassOf<UGameplayEffect> DeathEffect;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
 	TArray<TSubclassOf<UGameplayEffect>> InitialEffects;
 

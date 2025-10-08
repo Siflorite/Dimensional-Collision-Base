@@ -6,14 +6,15 @@
 #include "AbilitySystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
+#include "GAS/CAbilitySystemStatics.h"
 #include "GAS/CAbilitySystemComponent.h"
 #include "GAS/CAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/OverheadStatsGauge.h"
 
 // Sets default values
-ACCharacter::ACCharacter()
-{
+	ACCharacter::ACCharacter()
+	{
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -25,6 +26,8 @@ ACCharacter::ACCharacter()
 	// UI Initialization
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Overhead Widget Component");
 	OverheadWidgetComponent->SetupAttachment(GetRootComponent());
+
+	BindGASChangeDelegate();
 }
 
 void ACCharacter::ServerSideInit()
@@ -79,6 +82,29 @@ UAbilitySystemComponent* ACCharacter::GetAbilitySystemComponent() const
 	// return Cast<UAbilitySystemComponent>(CAbilitySystemComponent);
 }
 
+void ACCharacter::BindGASChangeDelegate()
+{
+	if (CAbilitySystemComponent)
+	{
+		CAbilitySystemComponent->RegisterGameplayTagEvent(UCAbilitySystemStatics::GetDeadStatTag()).AddUObject(this, &ACCharacter::DeadTagUpdated);
+	}
+}
+
+// ReSharper disable once CppParameterMayBeConst
+void ACCharacter::DeadTagUpdated(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount != 0)
+	{
+		// 当前有"Stats.Dead"标签，进入死亡状态
+		StartDeathSequence();
+	}
+	else
+	{
+		// 当前"Stats.Dead"标签清除，进入复活流程
+		Respawn();
+	}
+}
+
 void ACCharacter::ConfigureOverheadWidgetStatus()
 {
 	if (!OverheadWidgetComponent) return;
@@ -115,5 +141,15 @@ void ACCharacter::UpdateOverheadWidget() const
 			OverheadStatsGauge->SetOverheadWidgetScale(SizeRatio);
 		}
 	}
+}
+
+void ACCharacter::StartDeathSequence()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Dead"));
+}
+
+void ACCharacter::Respawn()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Respawn"));
 }
 
