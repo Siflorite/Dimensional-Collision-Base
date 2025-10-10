@@ -69,10 +69,19 @@ private:
 	
 	FTimerHandle OverheadWidgetTimerHandle;
 	void UpdateOverheadWidget() const;
+	void SetOverheadWidgetEnabled(const bool bIsEnabled);
 
-// --------------------------------  Death and Respawn  -----------------------------------
+    // --------------------------------  Death and Respawn  -----------------------------------
 
-private:
+    private:
 	void StartDeathSequence();
 	void Respawn();
+
+    virtual void OnDead();
+    virtual void OnRespawn();
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+	UAnimMontage* DeathMontage;
+
+	void PlayDeathAnimation();
 };

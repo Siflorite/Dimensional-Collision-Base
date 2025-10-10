@@ -106,3 +106,19 @@ FVector ACPlayerCharacter::GetMoveForwardDirection() const
 	// 对右向量和上向量 (0,0,1)进行叉乘，得到水平方向的前向量，且一定与右向量正交
 	return FVector::CrossProduct(GetLookRightDirection(), FVector::UpVector).GetSafeNormal();
 }
+
+void ACPlayerCharacter::OnDead()
+{
+    if (APlayerController* OwningPlayerController = GetController<APlayerController>())
+    {
+        DisableInput(OwningPlayerController);
+    }
+}
+
+void ACPlayerCharacter::OnRespawn()
+{
+    if (APlayerController* OwningPlayerController = GetController<APlayerController>())
+    {
+        EnableInput(OwningPlayerController);
+    }
+}

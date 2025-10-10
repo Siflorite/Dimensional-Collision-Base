@@ -4,8 +4,10 @@
 #include "Character/CCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GAS/CAbilitySystemStatics.h"
 #include "GAS/CAbilitySystemComponent.h"
 #include "GAS/CAttributeSet.h"
@@ -143,13 +145,55 @@ void ACCharacter::UpdateOverheadWidget() const
 	}
 }
 
+void ACCharacter::SetOverheadWidgetEnabled(const bool bIsEnabled)
+{
+	GetWorldTimerManager().ClearTimer(OverheadWidgetTimerHandle);
+	if (bIsEnabled)
+	{
+		ConfigureOverheadWidgetStatus();
+	}
+	else
+	{
+		OverheadWidgetComponent->SetHiddenInGame(true);
+	}
+}
+
 void ACCharacter::StartDeathSequence()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Dead"));
+	// 播放死亡动画
+	PlayDeathAnimation();
+	// 隐藏头顶组件
+	SetOverheadWidgetEnabled(false);
+	// 禁止移动
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+	// 取消胶囊体碰撞
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    // 子类实现禁用输入等功能
+	OnDead();
 }
 
 void ACCharacter::Respawn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Respawn"));
+	OnRespawn();
+}
+
+// Empty in `ACCharacter`, implemented in children classes to be executed in `StartDeathSequence()`
+void ACCharacter::OnDead()
+{
+}
+
+// Empty in `ACCharacter`, implemented in children classes to be executed in `Respawn()`
+void ACCharacter::OnRespawn()
+{
+}
+
+void ACCharacter::PlayDeathAnimation()
+{
+	if (DeathMontage)
+	{
+		PlayAnimMontage(DeathMontage);
+	}
 }
 
