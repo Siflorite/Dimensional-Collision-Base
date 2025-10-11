@@ -21,7 +21,12 @@ public:
 	void ApplyInitialEffects();
 	void GiveInitialAbilities();
 
+	// 完全恢复生命值、魔法值
+	void ApplyFullStatEffect();
+
 private:
+	void AuthApplyGameplayEffect(const TSubclassOf<UGameplayEffect>& GameplayEffect, const int Level = 1);
+	
 	void HealthUpdated(const FOnAttributeChangeData& Data);
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
 	TSubclassOf<UGameplayEffect> DeathEffect;
@@ -34,4 +39,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Abilities")
 	TMap<ECAbilityInputID, TSubclassOf<UGameplayAbility>> BasicAbilities;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
+	TSubclassOf<UGameplayEffect> FullStatEffect;
 };

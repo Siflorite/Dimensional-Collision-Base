@@ -9,6 +9,19 @@ UCAbilitySystemComponent::UCAbilitySystemComponent()
 	GetGameplayAttributeValueChangeDelegate(UCAttributeSet::GetHealthAttribute()).AddUObject(this, &UCAbilitySystemComponent::HealthUpdated);
 }
 
+/// @brief Apply Gameplay Effect to player, only called on server.
+/// @param GameplayEffect  The effect class to be applied.
+/// @param Level  The level of the effect to be applied.
+void UCAbilitySystemComponent::AuthApplyGameplayEffect(const TSubclassOf<UGameplayEffect>& GameplayEffect, const int Level)
+{
+	// Ensure executed on server
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		const FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingSpec(GameplayEffect, Level, MakeEffectContext());
+		ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	}
+}
+
 void UCAbilitySystemComponent::ApplyInitialEffects()
 {
 	// Ensure the initialization of effects only commence on servers!
@@ -37,15 +50,19 @@ void UCAbilitySystemComponent::GiveInitialAbilities()
 	}
 }
 
+void UCAbilitySystemComponent::ApplyFullStatEffect()
+{
+	if (FullStatEffect)
+	{
+		AuthApplyGameplayEffect(FullStatEffect);
+	}
+}
+
 void UCAbilitySystemComponent::HealthUpdated(const FOnAttributeChangeData& Data)
 {
-	// Ensure executed on server
-	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
-
 	// 新的生命值小于等于0，赋予死亡效果
 	if (Data.NewValue <= 0 && DeathEffect)
 	{
-		const FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingSpec(DeathEffect, 1, MakeEffectContext());
-		ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		AuthApplyGameplayEffect(DeathEffect);
 	}
 }

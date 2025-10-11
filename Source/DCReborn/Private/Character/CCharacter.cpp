@@ -160,7 +160,6 @@ void ACCharacter::SetOverheadWidgetEnabled(const bool bIsEnabled)
 
 void ACCharacter::StartDeathSequence()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Dead"));
 	// 播放死亡动画
 	PlayDeathAnimation();
 	// 隐藏头顶组件
@@ -175,8 +174,21 @@ void ACCharacter::StartDeathSequence()
 
 void ACCharacter::Respawn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Respawn"));
+	// 子类实现恢复输入等功能
 	OnRespawn();
+	// 恢复胶囊体碰撞
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// 恢复移动
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	// 显示头顶组件
+	SetOverheadWidgetEnabled(true);
+	// 停止死亡蒙太奇动画，淡出时间为0
+	GetMesh()->GetAnimInstance()->StopAllMontages(0.f);
+	// 恢复生命值、魔法等
+	if (CAbilitySystemComponent)
+	{
+		CAbilitySystemComponent->ApplyFullStatEffect();
+	}
 }
 
 // Empty in `ACCharacter`, implemented in children classes to be executed in `StartDeathSequence()`
