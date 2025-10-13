@@ -15,8 +15,8 @@
 #include "Widgets/OverheadStatsGauge.h"
 
 // Sets default values
-	ACCharacter::ACCharacter()
-	{
+ACCharacter::ACCharacter()
+{
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -62,6 +62,9 @@ void ACCharacter::BeginPlay()
 
 	// UI Stuff
 	ConfigureOverheadWidgetStatus();
+
+	// Record relative transform of mesh to root component
+	MeshRelativeTransform = GetMesh()->GetRelativeTransform();
 }
 
 // Called every frame
@@ -170,6 +173,8 @@ void ACCharacter::StartDeathSequence()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     // 子类实现禁用输入等功能
 	OnDead();
+	// 等待死亡动画蒙太奇时间 + 偏移时间后，会调用DeathMontageFinished()，启用布娃娃系统
+	// 包括人物模型脱离根组件、启用模拟物理、启用碰撞
 }
 
 void ACCharacter::Respawn()
@@ -189,6 +194,8 @@ void ACCharacter::Respawn()
 	{
 		CAbilitySystemComponent->ApplyFullStatEffect();
 	}
+	// 关闭布娃娃系统，包括人物模型绑定到根组件，设置网格体与根组件的相对位置，关闭物理模拟，关闭碰撞。
+	SetRagdollEnabled(false);
 }
 
 // Empty in `ACCharacter`, implemented in children classes to be executed in `StartDeathSequence()`
@@ -201,11 +208,40 @@ void ACCharacter::OnRespawn()
 {
 }
 
+void ACCharacter::SetRagdollEnabled(const bool bIsEnabled) const
+{
+	if (bIsEnabled)
+	{
+		GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::Type::PhysicsOnly);
+	}
+	else
+	{
+		GetMesh()->SetSimulatePhysics(false);
+		// 必须要先关闭模拟物理，移动相对位置才能到正确的位置
+		GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		GetMesh()->SetRelativeTransform(MeshRelativeTransform);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	}
+}
+
 void ACCharacter::PlayDeathAnimation()
 {
 	if (DeathMontage)
 	{
-		PlayAnimMontage(DeathMontage);
+		const float MontageDuration = PlayAnimMontage(DeathMontage);
+		GetWorldTimerManager().SetTimer(
+			DeathMontageTimerHandle,
+			this,
+			&ACCharacter::DeathMontageFinished,
+			MontageDuration + DeathMontageFinishTimeShift
+		);
 	}
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
+void ACCharacter::DeathMontageFinished()
+{
+	SetRagdollEnabled(true);
+}

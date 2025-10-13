@@ -73,15 +73,26 @@ private:
 
     // --------------------------------  Death and Respawn  -----------------------------------
 
-    private:
+private:
 	void StartDeathSequence();
 	void Respawn();
 
     virtual void OnDead();
     virtual void OnRespawn();
+
+	void SetRagdollEnabled(const bool bIsEnabled) const;
+
+	FTransform MeshRelativeTransform;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Death")
 	UAnimMontage* DeathMontage;
 
 	void PlayDeathAnimation();
+
+	// 在死亡动画蒙太奇结束前或后多少时间启用Ragdoll，一般为负值，即在结束前就启用，避免启用物理后与地面碰撞产生jitter。
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+	float DeathMontageFinishTimeShift = -0.8f;
+
+	FTimerHandle DeathMontageTimerHandle;
+	void DeathMontageFinished();
 };
