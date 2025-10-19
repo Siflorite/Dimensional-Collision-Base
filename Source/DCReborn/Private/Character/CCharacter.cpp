@@ -219,10 +219,10 @@ void ACCharacter::SetRagdollEnabled(const bool bIsEnabled) const
 	else
 	{
 		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 		// 必须要先关闭模拟物理，移动相对位置才能到正确的位置
 		GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		GetMesh()->SetRelativeTransform(MeshRelativeTransform);
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	}
 }
 
