@@ -12,6 +12,7 @@
 #include "GAS/CAbilitySystemComponent.h"
 #include "GAS/CAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Widgets/OverheadStatsGauge.h"
 
 // Sets default values
@@ -53,6 +54,12 @@ void ACCharacter::PossessedBy(AController* NewController)
 		// AI
 		ServerSideInit();
 	}
+}
+
+void ACCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACCharacter, TeamID)
 }
 
 // Called when the game starts or when spawned
@@ -244,4 +251,14 @@ void ACCharacter::PlayDeathAnimation()
 void ACCharacter::DeathMontageFinished()
 {
 	SetRagdollEnabled(true);
+}
+
+void ACCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	TeamID = NewTeamID;
+}
+
+FGenericTeamId ACCharacter::GetGenericTeamId() const
+{
+	return TeamID;
 }

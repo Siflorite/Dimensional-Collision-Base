@@ -5,10 +5,11 @@
 #include "AbilitySystemInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GenericTeamAgentInterface.h"
 #include "CCharacter.generated.h"
 
 UCLASS()
-class ACCharacter : public ACharacter, public IAbilitySystemInterface
+class ACCharacter : public ACharacter, public IAbilitySystemInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -20,6 +21,9 @@ public:
 	void ClientSideInit();
 	// 只会在服务端被调用
 	virtual void PossessedBy(AController* NewController) override;
+
+	// 处理复制相关
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -71,7 +75,7 @@ private:
 	void UpdateOverheadWidget() const;
 	void SetOverheadWidgetEnabled(const bool bIsEnabled);
 
-    // --------------------------------  Death and Respawn  -----------------------------------
+// --------------------------------  Death and Respawn  -----------------------------------
 
 private:
 	void StartDeathSequence();
@@ -95,4 +99,13 @@ private:
 
 	FTimerHandle DeathMontageTimerHandle;
 	void DeathMontageFinished();
+
+// --------------------------------------  TeamID  ---------------------------------------
+public:
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	
+private:
+	UPROPERTY(Replicated)
+	FGenericTeamId TeamID;
 };

@@ -2,6 +2,7 @@
 
 #include "Player/CPlayerController.h"
 
+#include "Net/UnrealNetwork.h"
 #include "Player/CPlayerCharacter.h"
 #include "Widgets/GameplayWidget.h"
 
@@ -12,6 +13,7 @@ void ACPlayerController::OnPossess(APawn* NewPawn)
 	if (CPlayerCharacter = Cast<ACPlayerCharacter>(NewPawn); CPlayerCharacter)
 	{
 		CPlayerCharacter->ServerSideInit();
+		CPlayerCharacter->SetGenericTeamId(TeamID);
 	}
 }
 
@@ -35,3 +37,21 @@ void ACPlayerController::SpawnGameplayWidget()
 		GameplayWidget->AddToViewport();
 	}
 }
+
+void ACPlayerController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	TeamID = NewTeamID;
+}
+
+FGenericTeamId ACPlayerController::GetGenericTeamId() const
+{
+	return TeamID;
+}
+
+void ACPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACPlayerController, TeamID)
+}
+
+
