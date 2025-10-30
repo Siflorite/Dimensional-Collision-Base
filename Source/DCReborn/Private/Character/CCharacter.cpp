@@ -188,6 +188,8 @@ void ACCharacter::Respawn()
 {
 	// 子类实现恢复输入等功能
 	OnRespawn();
+	// 关闭布娃娃系统，包括人物模型绑定到根组件，设置网格体与根组件的相对位置，关闭物理模拟，关闭碰撞。
+	SetRagdollEnabled(false);
 	// 恢复胶囊体碰撞
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	// 恢复移动
@@ -196,13 +198,20 @@ void ACCharacter::Respawn()
 	SetOverheadWidgetEnabled(true);
 	// 停止死亡蒙太奇动画，淡出时间为0
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.f);
+	// 玩家移动至出生点
+	if (HasAuthority() && GetController())
+	{
+		if (const TWeakObjectPtr<AActor> StartSpot = GetController()->StartSpot; StartSpot.IsValid())
+		{
+			SetActorTransform(StartSpot->GetActorTransform());
+		}
+	}
 	// 恢复生命值、魔法等
 	if (CAbilitySystemComponent)
 	{
 		CAbilitySystemComponent->ApplyFullStatEffect();
 	}
-	// 关闭布娃娃系统，包括人物模型绑定到根组件，设置网格体与根组件的相对位置，关闭物理模拟，关闭碰撞。
-	SetRagdollEnabled(false);
+	
 }
 
 // Empty in `ACCharacter`, implemented in children classes to be executed in `StartDeathSequence()`
