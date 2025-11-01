@@ -21,11 +21,14 @@ UAnimInstance* UCGameplayAbility::GetOwnerAnimInstance() const
 TArray<FHitResult> UCGameplayAbility::GetHitResultsFromSweepLocationTargetData(
 	const FGameplayAbilityTargetDataHandle& TargetDataHandle,
 	const float SweepSphereRadius,
+	const ETeamAttitude::Type TargetTeam,
 	const bool bDrawDebugTrajectory,
 	const bool bIgnoreSelf) const
 {
 	TArray<FHitResult> OutHitResults;
 	TSet<AActor*> HitActors;
+
+	const IGenericTeamAgentInterface* OwnerTeamInterface = Cast<IGenericTeamAgentInterface>(GetAvatarActorFromActorInfo());
 
 	for (const TSharedPtr<FGameplayAbilityTargetData>& TargetData : TargetDataHandle.Data)
 	{
@@ -48,14 +51,16 @@ TArray<FHitResult> UCGameplayAbility::GetHitResultsFromSweepLocationTargetData(
 		UKismetSystemLibrary::SphereTraceMultiForObjects(this, StartLocation, EndLocation, SweepSphereRadius,
 			HitObjectTypes, false, ActorsToIgnore, DrawDebugTraceType, OutHits, false);
 		// OutHitResults.Append(OutHits);
-		// 避免重复计入相同Actor:
+
 		for (const FHitResult& HitResult : OutHits)
 		{
-			if (!HitActors.Contains(HitResult.GetActor()))
-			{
-				OutHitResults.Add(HitResult);
-				HitActors.Add(HitResult.GetActor());
-			}
+			// 包含了重复Actor
+			if (HitActors.Contains(HitResult.GetActor())) continue;
+			// 目标Actor与自身不是Hostile
+			if (OwnerTeamInterface && OwnerTeamInterface->GetTeamAttitudeTowards(*HitResult.GetActor()) != TargetTeam) continue;
+
+			OutHitResults.Add(HitResult);
+			HitActors.Add(HitResult.GetActor());
 		}
 	}
 
