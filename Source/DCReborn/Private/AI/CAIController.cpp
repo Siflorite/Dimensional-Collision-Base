@@ -25,7 +25,8 @@ ACAIController::ACAIController()
 
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ACAIController::TargetPerceptionUpdated);
-
+	AIPerceptionComponent->OnTargetPerceptionForgotten.AddDynamic(this, &ACAIController::TargetForgotten);
+	
 	TargetsInSight.Empty();
 }
 
@@ -57,16 +58,25 @@ void ACAIController::TargetPerceptionUpdated(AActor* TargetActor, FAIStimulus St
 {
 	if (Stimulus.WasSuccessfullySensed()) // 看到新目标
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Target Seen"));
 		TargetsInSight.AddUnique(TargetActor);
 		if (!GetCurrentTarget()) // 当前无追踪目标，设置目标为看到的Actor
 		{
 			SetCurrentTarget(TargetActor);
 		}
 		// 有追踪目标时保持追踪目标
-	}
-	else // 有玩家离开视野
+	}  // else分支为玩家离开丢失视野范围的事件（经过MaxAge才会丢失），这里不做处理
+}
+
+void ACAIController::TargetForgotten(AActor* ForgottenActor)
+{
+	// 玩家离开视野
+	if (!ForgottenActor) return;
+
+	TargetsInSight.Remove(ForgottenActor);
+	if (GetCurrentTarget() == ForgottenActor)
 	{
-		TargetsInSight.Remove(TargetActor);
+		// 离开的玩家是当前追踪的玩家，设置新追踪目标
 		if (TargetsInSight.IsEmpty())
 		{
 			SetCurrentTarget(nullptr);
