@@ -13,6 +13,8 @@
 #include "GAS/CAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 #include "Widgets/OverheadStatsGauge.h"
 
 // Sets default values
@@ -31,6 +33,9 @@ ACCharacter::ACCharacter()
 	OverheadWidgetComponent->SetupAttachment(GetRootComponent());
 
 	BindGASChangeDelegate();
+	
+	// AI Initialization
+	PerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>("Perception Stimuli Source Component");
 }
 
 void ACCharacter::ServerSideInit()
@@ -72,6 +77,9 @@ void ACCharacter::BeginPlay()
 
 	// Record relative transform of mesh to root component
 	MeshRelativeTransform = GetMesh()->GetRelativeTransform();
+	
+	// Register CCharacter class to be sensed by AI Sight
+	PerceptionStimuliSourceComponent->RegisterForSense(UAISense_Sight::StaticClass());
 }
 
 // Called every frame

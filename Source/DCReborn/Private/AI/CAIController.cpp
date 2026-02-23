@@ -58,7 +58,7 @@ void ACAIController::TargetPerceptionUpdated(AActor* TargetActor, FAIStimulus St
 {
 	if (Stimulus.WasSuccessfullySensed()) // 看到新目标
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Target Seen"));
+		// UE_LOG(LogTemp, Warning, TEXT("Target Seen"));
 		TargetsInSight.AddUnique(TargetActor);
 		if (!GetCurrentTarget()) // 当前无追踪目标，设置目标为看到的Actor
 		{
